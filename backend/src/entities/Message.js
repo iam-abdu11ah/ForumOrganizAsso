@@ -4,7 +4,7 @@ const { MongoClient, ObjectId } = require("mongodb");
 class Message {
 
         // uri de connexion
-        uri = 'mongodb://localhost';
+        uri = process.env.MONGO_URI;
 
         // nom  de la base de donnée
         dbName = "main";

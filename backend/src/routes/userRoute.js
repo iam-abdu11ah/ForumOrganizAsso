@@ -135,7 +135,7 @@ userRoute.post("/newUser", async (req, res) => {
         }
 
         // on fait l'ajout à la base de données et on verifie que cela à fonctionné 
-        if (await user.createUser(lastName, firstName, login, password, repeatPassword)) {
+        if (await user.createUser(lastName, firstName, login, password)) {
             res.status(200).json({
                 status: 200,
                 message: "votre compte à bien été crée, en attente de validation"

@@ -10,7 +10,7 @@ Pour cloner et exécuter le projet en local, suivez ces étapes :
 
 ```bash
 # 1. Cloner le repository
-git clone https://github.com/maamun101/ForumOrganizAsso.git
+git clone https://github.com/iam-abdu11ah/ForumOrganizAsso
 
 # 2. Se déplacer dans le dossier du projet
 cd ForumOrganizAsso
@@ -33,7 +33,7 @@ cd backend
 # 7. Installer express
 npm install express
 
-# 8. Installer nodemom
+# 8. Installer nodemon
 npm install nodemon
 
 # 9. Installer mongodb

@@ -1,10 +1,11 @@
 const { MongoClient, ObjectId } = require("mongodb");
+const bcrypt = require('bcrypt');
 
 // class contenant les opérations de manipulation de la base de donnée des Users
 class User {
 
     // uri de connexion
-    uri = 'mongodb://localhost';
+    uri = process.env.MONGO_URI;
 
     // nom  de la base de donnée
     dbName = "main";
@@ -18,15 +19,10 @@ class User {
 
     // verfie si un utilisateur ayant avec login comme login existe
     async exists(login) {
-
         const client = new MongoClient(this.uri);
-
         try {
-
             await client.connect();
-
             const colUser = await client.db(this.dbName).collection(this.colUser);
-
             // stocke dans la variable exists le booléen correspondant à l'éxistance de l'utilisateur login
             const exists = await colUser.findOne(
                 {
@@ -35,7 +31,6 @@ class User {
             )
 
             return exists;
-
         } catch (e) {
             console.log(e);
         } finally {
@@ -75,7 +70,7 @@ class User {
     }
 
     // verifie si le password donné en paramètre correspond au véritable password de l'utilisateur login et renvoie l'objet de l'utilisateur si c'est le cas
-    async checkPassword(login, password) {
+    async checkPassword(login, candidatePassword) {
 
         const client = new MongoClient(this.uri);
 
@@ -86,15 +81,15 @@ class User {
             const colUser = await client.db(this.dbName).collection(this.colUser);
 
             // stocke dans la variable chack le booléen correspondant à la correspondance du password
-            const check = await colUser.findOne(
+            const user = await colUser.findOne(
                 {
                     login: login,
-                    password: password
                 }
             )
-
-            return check;
-
+            if (user && await bcrypt.compare(candidatePassword, user.password)) {
+                return user;
+            }
+            return null;
         } catch (e) {
             console.log(e);
         } finally {
@@ -103,22 +98,16 @@ class User {
     }
 
     // crée un nouvel utilisateur
-    async createUser(lastName, firstName, login, password, repeatPassword) {
-
+    async createUser(lastName, firstName, login, password) {
         const client = new MongoClient(this.uri);
-
         try {
-
             await client.connect();
-
             const colUser = client.db(this.dbName).collection(this.colUser);
-
             let newUser = {
                 lastName: lastName,
                 firstName: firstName,
                 login: login,
-                password: password,
-                repeatPassword: repeatPassword,
+                password: await bcrypt.hash(password, 10),
                 isAdmin: false,
                 isMember: false,
                 avatarUrl: ""
