@@ -17,10 +17,24 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24
     }
 }));
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://organiz-asso.vercel.app"
+];
+
 app.use(cors({
-    origin: 'https://organiz-asso.vercel.app',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
     credentials: true
 }));
+
+
 app.use(express.json());
 
 // Router
