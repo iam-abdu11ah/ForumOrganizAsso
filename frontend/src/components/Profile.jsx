@@ -43,7 +43,10 @@ function Profile({userId, setDisplayProfile, setUserProfile}) {
     });
   }
   
-  getUserProfile();
+  
+  useEffect(() => {
+    getUserProfile();
+  }, [userId]);
 
   // booléen definissant si le profile affiché est celui de l'utilisateur connecté
   let isMyProfile = (user.userId === userId);
