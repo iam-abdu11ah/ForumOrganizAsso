@@ -17,7 +17,7 @@ app.use(session({
     }
 }));
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://organiz-asso.vercel.app/',
     credentials: true
 }));
 app.use(express.json());
