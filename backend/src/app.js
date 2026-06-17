@@ -11,10 +11,9 @@ app.use(session({
     resave: true,
     saveUninitialized: false,
     cookie: {
-    secure: true,       // must be true if frontend is HTTPS
-    httpOnly: true,
-    sameSite: "none",   // required for cross-site cookies
-    maxAge: 1000 * 60 * 60 * 24
+        secure: false,
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24
     }
 }));
 
@@ -33,7 +32,6 @@ app.use(cors({
   },
     credentials: true
 }));
-
 
 app.use(express.json());
 
