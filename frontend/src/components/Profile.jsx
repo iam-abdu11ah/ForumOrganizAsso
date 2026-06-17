@@ -23,7 +23,7 @@ function Profile({userId, setDisplayProfile, setUserProfile}) {
 
   const defaultAvatar = "/src/assets/defaultAvatar.jpg";
 
-  const BACKEND = "http://localhost:8000";
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const getUserProfile = () => {
     // requete vers le serveur
@@ -33,7 +33,7 @@ function Profile({userId, setDisplayProfile, setUserProfile}) {
         if (res.data){  
           setProfileLastName(res.data.lastName);
           setProfileFirstName(res.data.firstName);
-          setAvatarUrl(res.data.avatarUrl ? `${BACKEND}${res.data.avatarUrl}` : defaultAvatar);
+          setAvatarUrl(res.data.avatarUrl ? `${API_URL}${res.data.avatarUrl}` : defaultAvatar);
         }
       }
     })

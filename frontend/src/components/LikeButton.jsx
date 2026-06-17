@@ -2,7 +2,8 @@ import {useState, useEffect } from 'react';
 import axios from 'axios';
 import "../css/LikeButton.css";
 
-axios.defaults.baseURL = "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = API_URL;
 
 function LikeButton({msgId}){
 

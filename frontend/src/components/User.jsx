@@ -3,14 +3,15 @@ import axios from 'axios';
 import {useUser} from '../context/userContext';
 import "../css/User.css";
 
-axios.defaults.baseURL = 'http://localhost:8000';
+
+const API_URL = import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = API_URL;
 
 function User({userId, setDisplayProfile, setUserProfile, setDisplayAccountPage, setUpdateList}){
 
     // on récupère les infos sur l'utilisateur connecté
     const user = useUser();
     const [avatarUrl, setAvatarUrl] = useState("/src/assets/defaultAvatar.jpg");
-    const BACKEND = "http://localhost:8000";
 
     // states contenant les infos sur l'utilisateur afficher par le composant
     const [lastName, setLastName] = useState();
@@ -37,7 +38,7 @@ function User({userId, setDisplayProfile, setUserProfile, setDisplayAccountPage,
                 setUserAdmin(response.data.isAdmin);
 
                 if (response.data.avatarUrl){  
-                    setAvatarUrl(`${BACKEND}${response.data.avatarUrl}`);
+                    setAvatarUrl(`${API_URL}${response.data.avatarUrl}`);
                 }
             }).catch(error => {
                 setUserErrorMsg("Erreur dans user : ",error.response.data.message);

@@ -13,9 +13,9 @@ export default function EditProfile({backtToProfile}) {
     const [lastName, setLastName] = useState(user.lastName);
 
     const defaultAvatar = "/src/assets/defaultAvatar.jpg";
-    const BACKEND = "http://localhost:8000";
+    const API_URL = import.meta.env.VITE_API_URL;
 
-    const avatarFullUrl = user.avatarUrl === "" ? defaultAvatar : `${BACKEND}${user.avatarUrl}`;
+    const avatarFullUrl = user.avatarUrl === "" ? defaultAvatar : `${API_URL}${user.avatarUrl}`;
 
     // file + preview
     const [avatarFile, setAvatarFile]   = useState(null);
@@ -24,7 +24,7 @@ export default function EditProfile({backtToProfile}) {
     // load current avatar on mount
     useEffect(() => {
         if (user.avatarUrl) {
-            setPreviewUrl(BACKEND + user.avatarUrl);
+            setPreviewUrl(API_URL + user.avatarUrl);
         }
         else {
             setPreviewUrl(defaultAvatar);

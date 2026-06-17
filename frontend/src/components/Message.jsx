@@ -10,7 +10,9 @@ import addCommentIcon from "../assets/add_comment.svg";
 import showCommentIcon from "../assets/show_comment.svg";
 import hideCommentIcon from "../assets/hide_comment.svg";
 
-axios.defaults.baseURL = "http://localhost:8000";
+
+const API_URL = import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = API_URL;
 
 function Message({msgId, setDisplayProfile, setUserProfile, setUpdateList, updateList}){
 
@@ -34,7 +36,7 @@ function Message({msgId, setDisplayProfile, setUserProfile, setUpdateList, updat
 
     // si il y a une erreur, contient le message d'erreur
     const [errorMsg, setErrorMsg] = useState();
-    const BACKEND = "http://localhost:8000";
+    const BACKEND = API_URL;
 
     // recupère les informations du message
     const getMessageInfo = () => {

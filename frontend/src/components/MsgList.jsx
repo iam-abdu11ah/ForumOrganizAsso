@@ -3,7 +3,8 @@ import axios from 'axios'
 import Message from "./Message.jsx";
 import '../css/MsgList.css'
 
-axios.defaults.baseURL = 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = API_URL;
 
 function MsgList({isPrivate, dateBegin, dateEnd, msgSearchContent, authorId, msgAnswered, isComment=false, setDisplayProfile, setUserProfile, setUpdateList, updateList}){
         // isComment=false, par défaut on ne veut pas afficher les commenataires commme msg dans le forum

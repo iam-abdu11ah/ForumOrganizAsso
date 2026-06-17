@@ -4,11 +4,12 @@ import { useState } from "react";
 import axios from 'axios';
 import { useUser } from "../context/userContext.jsx";
 
-axios.defaults.baseURL = "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = API_URL;
 
 // props : onSwitch : function that switch the login page to the signup page
 function Login({ onSwitch, loginFunction, setAdminFunction }) {
-
+  console.log("API_URL", API_URL );
   // states qui stocke les donnée rempli par l'utilisateur dans chaque champ du formulaire
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -28,6 +29,7 @@ function Login({ onSwitch, loginFunction, setAdminFunction }) {
       return;
     }
 
+    console.log("API_URL", API_URL);
     // requete vers le serveur
     axios.post('/user/login', {login, password}, {withCredentials:true})
     .then(res => {

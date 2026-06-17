@@ -2,7 +2,8 @@ import axios from 'axios';
 import {useState} from 'react';
 import logoutIcon from '../assets/logout.svg';
 
-axios.defaults.baseURL = "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = API_URL;
 
 function LogoutButton({lougoutFunction}){
 
