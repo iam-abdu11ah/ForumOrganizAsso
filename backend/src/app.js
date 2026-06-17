@@ -11,13 +11,14 @@ app.use(session({
     resave: true,
     saveUninitialized: false,
     cookie: {
-        secure: false,
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24
+    secure: true,       // must be true if frontend is HTTPS
+    httpOnly: true,
+    sameSite: "none",   // required for cross-site cookies
+    maxAge: 1000 * 60 * 60 * 24
     }
 }));
 app.use(cors({
-    origin: 'https://organiz-asso.vercel.app/',
+    origin: 'https://organiz-asso.vercel.app',
     credentials: true
 }));
 app.use(express.json());
