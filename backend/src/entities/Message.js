@@ -1,4 +1,5 @@
 const { MongoClient, ObjectId } = require("mongodb");
+const {client} = require("../db.js");
 
 // class contenant les opérations de manipulation de la base de donnée des messages
 class Message {
@@ -12,66 +13,41 @@ class Message {
         // nom de la collection de Message
         colName = "Message";
 
+        constructor(){
+                const db = client.db(this.dbName);
+                this.colMessage = db.collection(this.colName);
+        }
+
         // verifie qu'un message existe
         async exists(id) {
-
-                const client = new MongoClient(this.uri);
-
                 try {
-                        await client.connect();
-
-                        const db = await client.db(this.dbName);
-
-                        const colMessage = await db.collection(this.colName);
-
-                        const exists = await colMessage.findOne({
+                        const exists = await this.colMessage.findOne({
                                 _id: ObjectId.createFromHexString(id)
                         });
-
                         return exists;
-
                 } catch (e) {
                         console.error(e);
-                } finally {
-                        await client.close();
-                }
-
+                } 
         }
 
         // verifie si un message est privé
         async isPrivate(id) {
-                const client = new MongoClient(this.uri);
-
                 try {
-                        await client.connect();
-
-                        const colMessage = await client.db(this.dbName).collection(this.colName);
-
-                        const isPrivate = await colMessage.findOne({
+                        const isPrivate = await this.colMessage.findOne({
                                 _id: ObjectId.createFromHexString(id),
                                 isPrivate: true
                         });
-
                         return isPrivate;
                 } catch (e) {
                         console.error(e);
-                } finally {
-                        await client.close();
                 }
         }
 
 
         // crée un nouveau message
-        async createMessage(content, authorId, authorFirstName, authorLastName, isComment, msgAnswered, isPrivate) {
-
-                const client = new MongoClient(this.uri);
-
+        async createMessage(content, authorId, authorFirstName, 
+                        authorLastName, isComment, msgAnswered, isPrivate) {
                 try {
-                        await client.connect();
-
-                        const db = await client.db(this.dbName);
-
-                        const colMessage = await db.collection(this.colName);
 
                         let msgAnsweredObj = null;
 
@@ -94,56 +70,31 @@ class Message {
                         }
 
                         // ajout du nouveau message
-                        await colMessage.insertOne(newMessage);
-
+                        await this.colMessage.insertOne(newMessage);
                         return true;
                 } catch (e) {
                         console.error(e);
-                } finally {
-                        await client.close();
                 }
-
-
         }
 
 
         //suppression d'un message
         async delete(id) {
-
-                const client = new MongoClient(this.uri);
-
                 try {
-                        await client.connect();
-
-                        const db = await client.db(this.dbName);
-
-                        const colMessage = await db.collection(this.colName);
-
-                        const supp = await colMessage.deleteOne({
+                        const supp = await this.colMessage.deleteOne({
                                 _id: ObjectId.createFromHexString(id)
                         })
                         return supp;
 
                 } catch (e) {
                         console.error(e);
-                } finally {
-                        await client.close();
                 }
-
         }
 
 // recupère la liste des message correspondant aux critères des paramètres
-        async getMsgList(isPrivate, dateBegin, dateEnd, msgSearchContent, authorId, msgAnswered, isComment) {
-
-                const client = new MongoClient(this.uri);
-
+        async getMsgList(isPrivate, dateBegin, dateEnd, 
+                        msgSearchContent, authorId, msgAnswered, isComment) {
                 try {
-                        await client.connect();
-
-                        const db = await client.db(this.dbName);
-
-                        const colMessage = await db.collection(this.colName);
-
                         // initialisation du filtre 
                         let filter = { isPrivate: isPrivate };
 
@@ -172,10 +123,9 @@ class Message {
                                 filter = { authorId: ObjectId.createFromHexString(authorId) };
                         }
 
-
                         filter.isComment = isComment;
 
-                        const msgListCursor = await colMessage.find(filter);
+                        const msgListCursor = await this.colMessage.find(filter);
 
 
                         const msgList = await msgListCursor.toArray();
@@ -189,25 +139,13 @@ class Message {
 
                 } catch (e) {
                         console.error(e);
-                } finally {
-                        await client.close();
                 }
-
-
         }
 
 
         async updateAuthorName(userId, firstName, lastName) {
-                const client = new MongoClient(this.uri);
-
                 try {
-                        await client.connect();
-
-                        const db = await client.db(this.dbName);
-
-                        const colMessage = await db.collection(this.colName);
-
-                        const result = await colMessage.updateMany(
+                        const result = await this.colMessage.updateMany(
                                 { authorId: ObjectId.createFromHexString(userId) },
                                 { $set: { authorFirstName: firstName, authorLastName: lastName } }
                         );
@@ -215,29 +153,19 @@ class Message {
 
                 } catch (e) {
                         console.error(e);
-                } finally {
-                        await client.close();
                 }
         }
 
 
  // recupère le nombre de like d'un message
         async getLikeNumber(msgId){
-
-                const client = new MongoClient(this.uri);
-
                 try{
-                        await client.connect();
-
-                        const db = client.db(this.dbName);
-                        const colMessage =  db.collection(this.colName);
-
-                        const msg = await colMessage.findOne({
+                        const msg = await this.colMessage.findOne({
                                 _id : ObjectId.createFromHexString(msgId)
                         });
 
                         if (msg.likeNumber == undefined){
-                                const result = await colMessage.updateMany({
+                                const result = await this.colMessage.updateMany({
                                         likeNumber: undefined
                                 },
                                 {
@@ -249,27 +177,15 @@ class Message {
 
                 }catch(e){
                         console.log(e);
-                }finally{
-                        await client.close();
                 }
-
         }
 
 
         // ajoute ou retire un like à msgId selon la valeur de like
         async setLike(msgId, liked){
-
-                const client = new MongoClient(this.uri);
-
                 try{
-                        await client.connect();
-
-                        const db = client.db(this.dbName);
-                        const colMessage =  db.collection(this.colName);
-
                         let val = (liked ? 1 : -1);
-
-                        const result = await colMessage.updateOne({
+                        const result = await this.colMessage.updateOne({
                                 _id : ObjectId.createFromHexString(msgId)
                         }, {
                                 $inc: {likeNumber : val}
@@ -280,10 +196,7 @@ class Message {
 
                 }catch(e){
                         console.log(e);
-                }finally{
-                        await client.close();
                 }
-
         }
 }
 

@@ -1,87 +1,59 @@
 const { MongoClient, ObjectId } = require("mongodb");
 const bcrypt = require('bcrypt');
+const {client} = require("../db.js");
 
 // class contenant les opérations de manipulation de la base de donnée des Users
 class User {
+    dbNameStr = "main";        // nom  de la base de donnée
+    colUserStr = "User";       // nom de la collection de User
+    colMessageStr = "Message"  //nom de la collection de Message
 
-    // uri de connexion
-    uri = process.env.MONGO_URI;
-
-    // nom  de la base de donnée
-    dbName = "main";
-
-    // nom de la collection de User
-    colUser = "User";
-
-    //nom de la collection de Message
-    colMessage = "Message"
+    constructor(){
+        const db = client.db(this.dbNameStr);
+        this.colUser = db.collection(this.colUserStr);
+        this.colMessage = db.collection(this.colMessageStr);
+    }
 
 
     // verfie si un utilisateur ayant avec login comme login existe
     async exists(login) {
-        const client = new MongoClient(this.uri);
         try {
-            await client.connect();
-            const colUser = await client.db(this.dbName).collection(this.colUser);
             // stocke dans la variable exists le booléen correspondant à l'éxistance de l'utilisateur login
-            const exists = await colUser.findOne(
+            const exists = await this.colUser.findOne(
                 {
                     login: login
                 }
             )
-
             return exists;
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
         }
     }
 
     // verfie si un utilisateur ayant avec l'id userId existe
     async existsId(userId) {
-
-        const client = new MongoClient(this.uri);
-
         try {
-
-            await client.connect();
-
-            const colUser = await client.db(this.dbName).collection(this.colUser);
-
             if (userId.length < 24){
                 return false;
             }
 
             // stocke dans la variable exists le booléen correspondant à l'éxistance de l'utilisateur login
-            const exists = await colUser.findOne(
+            const exists = await this.colUser.findOne(
                 {
                     _id: ObjectId.createFromHexString(userId)
                 }
             )
-
             return exists;
-
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
         }
     }
 
     // verifie si le password donné en paramètre correspond au véritable password de l'utilisateur login et renvoie l'objet de l'utilisateur si c'est le cas
     async checkPassword(login, candidatePassword) {
-
-        const client = new MongoClient(this.uri);
-
         try {
-
-            await client.connect();
-
-            const colUser = await client.db(this.dbName).collection(this.colUser);
-
             // stocke dans la variable chack le booléen correspondant à la correspondance du password
-            const user = await colUser.findOne(
+            const user = await this.colUser.findOne(
                 {
                     login: login,
                 }
@@ -92,17 +64,12 @@ class User {
             return null;
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
         }
     }
 
     // crée un nouvel utilisateur
     async createUser(lastName, firstName, login, password) {
-        const client = new MongoClient(this.uri);
         try {
-            await client.connect();
-            const colUser = client.db(this.dbName).collection(this.colUser);
             let newUser = {
                 lastName: lastName,
                 firstName: firstName,
@@ -113,23 +80,17 @@ class User {
                 avatarUrl: ""
             };
 
-            await colUser.insertOne(newUser);
+            await this.colUser.insertOne(newUser);
 
             return true;
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
-        }
-
+        } 
     }
 
     // met à jour les informations de l'utilisateur
     async updateUser(userId, firstName, lastName,) {
-        const client = new MongoClient(this.uri);
         try {
-            await client.connect();
-            const colUser = client.db(this.dbName).collection(this.colUser);
             const filter = { _id: ObjectId.createFromHexString(userId) };
             const updateDoc = {
                 $set: {
@@ -137,52 +98,40 @@ class User {
                     lastName: lastName,
                 },
             };
-            const result = await colUser.updateOne(filter, updateDoc);
+            const result = await this.colUser.updateOne(filter, updateDoc);
             return result;
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
         }
     }
 
     // met à jour l'avatar de l'utilisateur
     async updateAvatar(userId, avatarUrl) {
-        const client = new MongoClient(this.uri);
         try {
-            await client.connect();
-            const colUser = client.db(this.dbName).collection(this.colUser);
             const filter = { _id: ObjectId.createFromHexString(userId) };
             const updateDoc = {
                 $set: {
                     avatarUrl: avatarUrl,
                 },
             };
-            const result = await colUser.updateOne(filter, updateDoc);
+            const result = await this.colUser.updateOne(filter, updateDoc);
             return result;
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
         }
     }
 
     //on récupère les infos personnelles et les messages d'un user par son login //si cette methode est appelée, on est sûr cet user exists vue que on a déjà vérifié avec exists(login) auparavant
-    async getUserMessage(userId) {
-        const client = new MongoClient(this.uri);
+    async getUserMessage(login) {
         try {
-            await client.connect();
-            const colUser = client.db(this.dbName).collection(this.colUser);
-            const colMessage = client.db(this.dbName).collection(this.colMessage);
-
-            const userInfo = await colUser.findOne(
+            const userInfo = await this.colUser.findOne(
                 {
-                    login: userId,
+                    login: login,
                 }
             )
 
             //on récupère tous les message pour le user courant, sachant que pour chaque user, le db génère un unique id
-            const userMessagesCursor = await colMessage.find({  // .find() renvoie un curseur pointant vers les documents de la collections, cursor est comme un iterator/pointer
+            const userMessagesCursor = await this.colMessage.find({  // .find() renvoie un curseur pointant vers les documents de la collections, cursor est comme un iterator/pointer
                 authorId: new Object(userInfo._id),
                 isComment: false,
             })
@@ -194,23 +143,14 @@ class User {
 
         } catch (e) {
             console.log(e)
-        } finally {
-            await client.close();
         }
     }
 
     // renvoie la liste des id des users, member si displayMember est true, non member sinon
     async getUserList(displayMember) {
-
-        const client = new MongoClient(this.uri);
-
         try {
-            await client.connect();
-
-            const colUser = client.db(this.dbName).collection(this.colUser);
-
             // on récupère un curseur poitant vers les users correspondant
-            let userCursor = await colUser.find({
+            let userCursor = await this.colUser.find({
                 isMember: displayMember
             });
 
@@ -219,56 +159,28 @@ class User {
 
             // on récupère uniquement les ids des users
             const userIdList = userList.map((element) => element._id);
-
             return userIdList;
-
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
         }
-
     }
 
     // supprime l'utilisateur userId
     async deleteUser(userId) {
-
-        const client = new MongoClient(this.uri);
-
         try {
-
-            await client.connect();
-
-            const db = client.db(this.dbName);
-            const colUser = db.collection(this.colUser);
-
-            const result = await colUser.deleteOne({
+            const result = await this.colUser.deleteOne({
                 _id: ObjectId.createFromHexString(userId)
             });
-
             return (result.deletedCount === 1);
-
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
         }
-
     }
 
     // metre un utilisateur member
     async setMember(userId) {
-
-        const client = new MongoClient(this.uri);
-
         try {
-
-            await client.connect();
-
-            const db = client.db(this.dbName);
-            const colUser = db.collection(this.colUser);
-
-            const result = await colUser.updateOne(
+            const result = await this.colUser.updateOne(
                 {
                     _id: ObjectId.createFromHexString(userId)
                 },
@@ -276,30 +188,17 @@ class User {
                     $set: { isMember: true }
                 }
             );
-
             return (result.matchedCount == 1);
 
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
-        }
-
+        } 
     }
 
     // metre un utilisateur Admin
     async setAdmin(userId) {
-
-        const client = new MongoClient(this.uri);
-
         try {
-
-            await client.connect();
-
-            const db = client.db(this.dbName);
-            const colUser = db.collection(this.colUser);
-
-            const result = await colUser.updateOne(
+            const result = await this.colUser.updateOne(
                 {
                     _id: ObjectId.createFromHexString(userId)
                 },
@@ -307,63 +206,33 @@ class User {
                     $set: { isAdmin: true }
                 }
             );
-
             return (result.matchedCount == 1);
-
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
-        }
-
+        } 
     }
 
     // recupere un booléen indiquant si l'user userId à aimer le message msgId
     async hasLiked(userId, msgId) {
-
-        const client = new MongoClient(this.uri);
-
         try {
-
-            await client.connect();
-
-            const db = client.db(this.dbName);
-            const colUser = db.collection(this.colUser);
-
-            const liked = await colUser.findOne({
+            const liked = await this.colUser.findOne({
                 _id: ObjectId.createFromHexString(userId),
                 likedMsg: ObjectId.createFromHexString(msgId)
             });
-
             return (liked != null);
-
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
         }
-
     }
 
     // ajoute msgId dans la liste likedMsg si like == true, l'enlève sinon
     async setLike(userId, msgId, liked) {
-
-        const client = new MongoClient(this.uri);
-
         try {
-
-            await client.connect();
-
-            const db = client.db(this.dbName);
-            const colUser = db.collection(this.colUser);
-
             const userObjectId = ObjectId.createFromHexString(userId);
             const msgObjectId = ObjectId.createFromHexString(msgId);
-
             let result;
-
             if (liked) {
-                result = await colUser.updateOne({
+                result = await this.colUser.updateOne({
                     _id: userObjectId
                 },
                     {
@@ -371,7 +240,7 @@ class User {
                     });
             }
             else {
-                result = await colUser.updateOne({
+                result = await this.colUser.updateOne({
                     _id: userObjectId
                 },
                     {
@@ -379,17 +248,10 @@ class User {
                     }
                 );
             }
-
-
             return (result.matchedCount == 1);
-
-
         } catch (e) {
             console.log(e);
-        } finally {
-            await client.close();
         }
-
     }
 
 }

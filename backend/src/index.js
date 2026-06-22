@@ -1,7 +1,11 @@
-const app = require("./app.js");
 require("dotenv").config();
-
+const app = require("./app.js");
+const {connectDB} = require("./db.js");
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-    console.log("serveur en écoute sur le port "+PORT+"...");
+
+// Démarrer le serveur après la connexion à la base de données
+connectDB().then(()=>{
+    app.listen(PORT, () => {
+        console.log("Serveur en écoute sur le port "+PORT+"...");
+    });
 });
