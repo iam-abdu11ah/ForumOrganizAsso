@@ -65,7 +65,7 @@
 .user_form .submitButton {
   width: 100%;
   padding: 12px;
-  background-color: #4a90e2;
+  background-color: #0055ff;
   /* Bleu clair pour le bouton */
   color: white;
   border: none;
@@ -160,7 +160,7 @@
   display: inline-block;
   background-color: #0055ff;
   color: white;
-  padding: 8px 10px;
+  padding: 1px 10px;
   border-radius: 8px;
   font-weight: 500;
   text-decoration: none;
