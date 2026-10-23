@@ -18,31 +18,34 @@ cd ForumOrganizAsso
 # 3. Se déplacer dans la dossier frontend
 cd frontend
 
-# 3. Installer les dépendances
+# 4. Installer les dépendances
 npm install
 
-# 4. Installer axios
+# 5. Installer axios
 npm install axios
 
-# 5. Lancer le frontend
+# 6. Install router
+npm install react-router-dom
+
+# 7. Lancer le frontend
 npm run dev
 
-# 6. Dans une nouvelle fenêtre de terminal, se déplacer dans le dossier backend
+# 8. Dans une nouvelle fenêtre de terminal, se déplacer dans le dossier backend
 cd backend
 
-# 7. Installer express
+# 9. Installer express
 npm install express
 
-# 8. Installer nodemon
+# 10. Installer nodemon
 npm install nodemon
 
-# 9. Installer mongodb
+# 11. Installer mongodb
 npm install mongodb
 
-# 10. Installer express-session
+# 12. Installer express-session
 npm install express-session
 
-# 9. Lancer le backend
+# 13. Lancer le backend
 npm start
 ```
 

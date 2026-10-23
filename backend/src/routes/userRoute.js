@@ -100,27 +100,67 @@ userRoute.post('/login', async (req, res) => {
     }
 });
 
+// renvoie l'utilisateur de la session courante (permet de rester connecté après un rafraîchissement)
+userRoute.get("/me", async (req, res) => {
+
+    const user = new User();
+
+    try {
+        // verification qu'une session existe
+        if (!req.session.userid) {
+            res.status(401).json({
+                status: 401,
+                message: "Non connecté"
+            });
+            return;
+        }
+
+        const userObj = await user.existsId(req.session.userid.toString());
+
+        if (!userObj) {
+            res.status(401).json({
+                status: 401,
+                message: "Utilisateur inconnu"
+            });
+            return;
+        }
+
+        res.status(200).json({
+            status: 200,
+            message: "Session valide",
+            user: {
+                userId: userObj._id,
+                login: userObj.login,
+                firstName: userObj.firstName,
+                lastName: userObj.lastName,
+                isAdmin: userObj.isAdmin,
+                isMember: userObj.isMember,
+                avatarUrl: userObj.avatarUrl
+            }
+        });
+
+    } catch (e) {
+        res.status(500).json({
+            status: 500,
+            message: "erreur interne",
+            details: (e || "Erreur inconnue").toString()
+        });
+        console.error(e);
+    }
+});
+
 userRoute.post("/newUser", async (req, res) => {
 
     const user = new User();
 
     try {
-        const { lastName, firstName, login, password, repeatPassword } = req.body;
+        const {firstName, lastName, login, password } = req.body;
 
         // verification que les champs sont non vide
-        if (!lastName || !firstName || !login || !password || !repeatPassword) {
+        if (!lastName || !firstName || !login || !password) {
             res.status(400).json({
                 status: 400,
                 message: "Erreur : tous les champs sont obligatoire"
-            });
-            return;
-        }
-
-        // verification password et repeatPassword
-        if (password !== repeatPassword) {
-            res.status(400).json({
-                status: 400,
-                message: "Erreur : les mots de passes de correspondent pas"
             });
             return;
         }
@@ -138,7 +178,7 @@ userRoute.post("/newUser", async (req, res) => {
         if (await user.createUser(lastName, firstName, login, password)) {
             res.status(200).json({
                 status: 200,
-                message: "votre compte à bien été crée, en attente de validation"
+                message: "Votre compte à bien été crée, en attente de validation"
             });
             return;
         }

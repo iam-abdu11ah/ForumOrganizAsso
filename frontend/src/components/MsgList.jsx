@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from 'axios'
+import api, { getErrorMessage } from '../api/client.js';
 import Message from "./Message.jsx";
 import '../css/MsgList.css'
 
-const API_URL = import.meta.env.VITE_API_URL;
-axios.defaults.baseURL = API_URL;
-
-function MsgList({isPrivate, dateBegin, dateEnd, msgSearchContent, authorId, msgAnswered, isComment=false, setDisplayProfile, setUserProfile, setUpdateList, updateList}){
+function MsgList({isPrivate, dateBegin, dateEnd, msgSearchContent, authorId, msgAnswered, isComment=false, setUpdateList, updateList}){
         // isComment=false, par défaut on ne veut pas afficher les commenataires commme msg dans le forum
 
     // liset non trié des ids des messages
@@ -43,12 +40,12 @@ function MsgList({isPrivate, dateBegin, dateEnd, msgSearchContent, authorId, msg
 
         const url = "/message/getMessageList?" + queryString;
 
-        axios.get(url, {withCredentials:true})
+        api.get(url)
         .then(res => {
             // recupération de la liste non trié
             setRawMsgList(res.data.msgList.reverse());
         }).catch(error => {
-            setErrorMsg(error.response.data.message);
+            setErrorMsg(getErrorMessage(error));
         });
 
 
@@ -104,13 +101,11 @@ function MsgList({isPrivate, dateBegin, dateEnd, msgSearchContent, authorId, msg
         {errorMsg ? (<p className="errorMsg">{errorMsg}</p>) :
         
         (
-            msgList.map((element, index) => {
-                return <Message 
-                        key={index} 
-                        msgId={element.msgId} 
-                        setDisplayProfile={(bool) => {setDisplayProfile(bool)}}
-                        setUserProfile={(userId) => {setUserProfile(userId)}}
-                        setUpdateList={(val) => {setUpdateList(val)}}
+            msgList.map((element) => {
+                return <Message
+                        key={element.msgId}
+                        msgId={element.msgId}
+                        setUpdateList={setUpdateList}
                         updateList={updateList}
                         />
             })

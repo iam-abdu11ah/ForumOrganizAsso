@@ -1,9 +1,7 @@
 import {useState, useEffect } from 'react';
-import axios from 'axios';
+import api, { getErrorMessage } from '../api/client.js';
 import "../css/LikeButton.css";
 
-const API_URL = import.meta.env.VITE_API_URL;
-axios.defaults.baseURL = API_URL;
 
 function LikeButton({msgId}){
 
@@ -20,35 +18,35 @@ function LikeButton({msgId}){
     useEffect(() => {
 
         // fonction qui verifie si le message est déja aimer par l'utilisateur
-        axios.get("/user/hasLiked/" + msgId.toString(), {withCredentials: true})
+        api.get("/user/hasLiked/" + msgId.toString())
         .then(response => {
             //if (response.status == 200){
                 setLiked(response.data.liked);
             //}
         }).catch(error => {
-            setErrorMsg(error.response.data.message);
+            setErrorMsg(getErrorMessage(error));
         });
 
         // recuperation du nombre de like
-        axios.get("/message/getLikeNumber/" + msgId, {withCredentials: true})
+        api.get("/message/getLikeNumber/" + msgId)
         .then( response => {
             if (response.status == 200){
                 setLikeNumber(response.data.likeNumber);
             }
         }).catch(error => {
-            setErrorMsg(error.response.data.message);
+            setErrorMsg(getErrorMessage(error));
         });
 
     }, [msgId]);
 
     // envoie le like vers le serveur
     const handleLikeClick = () => {
-        axios.patch("/user/setLike", {liked : !liked, msgId},{withCredentials: true})
+        api.patch("/user/setLike", {liked : !liked, msgId})
         .then( response => {
             setLiked(!liked)
             setLikeNumber(prev => liked ? prev - 1 : prev + 1);
         }).catch(error => {
-            setErrorMsg(error.response.data.message);
+            setErrorMsg(getErrorMessage(error));
         });
     }
 

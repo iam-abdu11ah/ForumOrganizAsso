@@ -1,17 +1,18 @@
 import {useState, useEffect} from 'react';
-import axios from 'axios';
+import { Link } from 'react-router-dom';
+import api, { getErrorMessage } from '../api/client.js';
 import {useUser} from '../context/userContext';
+import defaultAvatar from "../assets/defaultAvatar.jpg";
 import "../css/User.css";
 
 
 const API_URL = import.meta.env.VITE_API_URL;
-axios.defaults.baseURL = API_URL;
 
-function User({userId, setDisplayProfile, setUserProfile, setDisplayAccountPage, setUpdateList}){
+function User({userId, setUpdateList}){
 
     // on récupère les infos sur l'utilisateur connecté
-    const user = useUser();
-    const [avatarUrl, setAvatarUrl] = useState("/src/assets/defaultAvatar.jpg");
+    const { user } = useUser();
+    const [avatarUrl, setAvatarUrl] = useState(defaultAvatar);
 
     // states contenant les infos sur l'utilisateur afficher par le composant
     const [lastName, setLastName] = useState();
@@ -30,7 +31,7 @@ function User({userId, setDisplayProfile, setUserProfile, setDisplayAccountPage,
     // fonction qui fait la requête vers le serveur pour récuperer les infos sur l'utilisateur
     useEffect(() => {
         if(updateUser){
-            axios.get("/user/profile/"+userId, {withCredentials:true})
+            api.get("/user/profile/"+userId)
             .then(response => {
                 setLastName(response.data.lastName);
                 setFirstName(response.data.firstName);
@@ -41,7 +42,7 @@ function User({userId, setDisplayProfile, setUserProfile, setDisplayAccountPage,
                     setAvatarUrl(`${API_URL}${response.data.avatarUrl}`);
                 }
             }).catch(error => {
-                setUserErrorMsg("Erreur dans user : ",error.response.data.message);
+                setUserErrorMsg(getErrorMessage(error));
             });
             setUpdateUser(false);
         }
@@ -50,11 +51,11 @@ function User({userId, setDisplayProfile, setUserProfile, setDisplayAccountPage,
     // fonction qui fait une requête vers le serveur pour supprimer l'utilisateur
     const deleteUser = () => {
         if(window.confirm("Êtes-vous sûr ?")){
-            axios.delete("/user/delete/" + userId ,{withCredentials: true} )
+            api.delete("/user/delete/" + userId  )
             .then(response => {
                     setUpdateList(true);
             }).catch(error => {
-                    setDeleteErrorMsg(error.response.data.message);
+                    setDeleteErrorMsg(getErrorMessage(error));
             });
         }
     }
@@ -62,11 +63,11 @@ function User({userId, setDisplayProfile, setUserProfile, setDisplayAccountPage,
     // fonction qui fait une requête vers le serveur pour metre l'utilsateur Member
     const setMember = () => {
         if (window.confirm("Êtes-vous sûr ?")){
-            axios.patch("/user/setMember/" + userId , {}, {withCredentials: true} )
+            api.patch("/user/setMember/" + userId , {} )
             .then(response => {
                     setUpdateList(true);
             }).catch(error => {
-                    setStatusErrorMessage(error.response.data.message);
+                    setStatusErrorMessage(getErrorMessage(error));
             });
         }
     }
@@ -74,11 +75,11 @@ function User({userId, setDisplayProfile, setUserProfile, setDisplayAccountPage,
     // fonction qui fait une requête vers le serveur pour metre l'utilisateur Admin
     const setAdmin = () => {
         if (window.confirm("Êtes-vous sûr ?")){
-            axios.patch("/user/setAdmin/" + userId , {}, {withCredentials: true} )
+            api.patch("/user/setAdmin/" + userId , {} )
             .then(response => {
                     setUpdateUser(true);
             }).catch(error => {
-                    setStatusErrorMessage(error.response.data.message);
+                    setStatusErrorMessage(getErrorMessage(error));
             });
         }
     }
@@ -95,26 +96,18 @@ function User({userId, setDisplayProfile, setUserProfile, setDisplayAccountPage,
                     onError={e => {
                         e.target.onerror = null;         // prevent infinite loop
                         e.target.src = defaultAvatar;    // default src
-                        user.avatarUrl = defaultAvatar;
-                    }}    
+                    }}
                 />
-            
-                <p className="UserName" 
-                                onClick={() => {
-                                                setDisplayAccountPage(false);
-                                                setDisplayProfile(true);
-                                                setUserProfile(userId);
-                                            }
-                                        }
-                >{firstName + " " + lastName}</p>
+
+                <Link className="UserName" to={"/profile/" + userId}>{firstName + " " + lastName}</Link>
             </div>
 
 
             <p className='UserStatus'>{userAdmin ? "Administrateur" : (userMember ? "Membre " : "En attente") }</p>
-            
-            {(userMember && user.user.isAdmin && !userAdmin && <button onClick={() => setAdmin()}>faire devenir Admin</button>)}
+
+            {(userMember && user.isAdmin && !userAdmin && <button onClick={() => setAdmin()}>faire devenir Admin</button>)}
             {(!userMember && <button onClick={() => setMember()}>faire devenir membre</button>)}
-            {(user.user.isAdmin && !userAdmin && <button className="deleteUserButton" onClick={() => deleteUser()}>Supprimer l'utilisateur</button>)}
+            {(user.isAdmin && !userAdmin && <button className="deleteUserButton" onClick={() => deleteUser()}>Supprimer l'utilisateur</button>)}
             
             {(deleteErrorMsg && <p className='errorMsg'>{deleteErrorMsg}</p>)}
             {(statusErrorMessage && <p className='errorMsg'>{statusErrorMessage}</p>)}

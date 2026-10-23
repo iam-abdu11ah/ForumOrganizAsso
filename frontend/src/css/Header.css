@@ -58,12 +58,31 @@
 button {
   background-color: #0055ff;
   color: white;
-  padding: 8px 10px;
+  padding: 5px 10px;
   border: none;
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* liens de navigation (NavLink) affichés comme des boutons */
+.header .navButton {
+  background-color: #0055ff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.header .navButton:hover {
+  background-color: #1e40af;
+  transform: scale(1.03);
 }
 
 .header .active {
@@ -94,8 +113,8 @@ button {
 }
 
 .icon {
-  height: 1rem;
-  width: 1rem;
+  height: 1.5rem;
+  width: 1.5rem;
   object-fit: contain;
 }
 
@@ -126,7 +145,8 @@ button {
   }
 
 
-  .toolbarZone button {
+  .toolbarZone button,
+  .toolbarZone .navButton {
     padding: 5px;
     display: inline-flex;
     align-items: center;

@@ -2,9 +2,9 @@ import {useState} from 'react';
 import {useUser} from '../context/userContext';
 import UserList from './UserList.jsx';
 
-function AccountPage({ setDisplayProfile, setUserProfile, setDisplayAccountPage}){
+function AccountPage(){
 
-    const user = useUser();
+    const { user } = useUser();
 
     // booléen qui definie si on affiche la liste des utilisateur member ou non
     const [displayMember, setDisplayMember] = useState(true);
@@ -14,20 +14,17 @@ function AccountPage({ setDisplayProfile, setUserProfile, setDisplayAccountPage}
 
     return (
     <div className='AccountPage'>
-        {(user.user.isAdmin &&
+        {(user.isAdmin &&
              <button onClick={() => {setDisplayMember(!displayMember); setUpdateList(true)}}>
                 {displayMember ? "afficher les comptes en attente de validation" : "afficher les membres"}
              </button>)}
 
-        <UserList 
-            setDisplayProfile={(bool) => setDisplayProfile(bool)}
-            setUserProfile={(userId) => setUserProfile(userId)}
+        <UserList
             displayMember={displayMember}
-            setDisplayAccountPage={(bool) => setDisplayAccountPage(bool)}
-            setUpdateList={(bool) => setUpdateList(bool)}
+            setUpdateList={setUpdateList}
             updateList={updateList}
         />
-       
+
     </div>)
 
 }

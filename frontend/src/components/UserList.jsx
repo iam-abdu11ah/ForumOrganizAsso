@@ -1,11 +1,8 @@
 import {useEffect, useState} from 'react';
-import axios from 'axios'
+import api, { getErrorMessage } from '../api/client.js';
 import User from "./User.jsx";
 
-const API_URL = import.meta.env.VITE_API_URL;
-axios.defaults.baseURL = API_URL;
-
-function UserList({setUserProfile, setDisplayProfile, displayMember, setDisplayAccountPage, updateList, setUpdateList}){
+function UserList({displayMember, updateList, setUpdateList}){
 
     // contient les messages d'erreurs
     const [errorMsg, setErromMsg] = useState();
@@ -17,10 +14,10 @@ function UserList({setUserProfile, setDisplayProfile, displayMember, setDisplayA
     useEffect(() => {
       if (updateList){
           setUserList([]);
-          axios.get("/user/getUserList/"+displayMember, {withCredentials:true} ).then((res) => {
+          api.get("/user/getUserList/"+displayMember).then((res) => {
               setUserList(res.data.userList);
-          }).catch((error) => {   
-              setErromMsg(error.response.data.message);
+          }).catch((error) => {
+              setErromMsg(getErrorMessage(error));
           });
           setUpdateList(false);
       }
@@ -31,19 +28,16 @@ function UserList({setUserProfile, setDisplayProfile, displayMember, setDisplayA
           {errorMsg ? (
             errorMsg
           ) : (
-            userList.map((userId, index) => (
-                <User 
-                    key={index} 
+            userList.map((userId) => (
+                <User
+                    key={userId}
                     userId={userId}
-                    setUserProfile={(userId) => setUserProfile(userId)}
-                    setDisplayProfile={(bool) => setDisplayProfile(bool)}
-                    setDisplayAccountPage={(bool) => setDisplayAccountPage(bool)}
-                    setUpdateList={(bool) => setUpdateList(bool)}
+                    setUpdateList={setUpdateList}
                 />
             ))
           )}
         </div>
-      );  
+      );
 
 
 }

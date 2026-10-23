@@ -1,30 +1,25 @@
-import axios from 'axios';
 import {useState} from 'react';
+import { useUser } from '../context/userContext';
+import { getErrorMessage } from '../api/client.js';
 import logoutIcon from '../assets/logout.svg';
 
-const API_URL = import.meta.env.VITE_API_URL;
-axios.defaults.baseURL = API_URL;
+function LogoutButton(){
 
-function LogoutButton({lougoutFunction}){
+    const { logout } = useUser();
 
     // state contenant les messages d'erreur
     const [errorMsg, setErrorMsg] = useState();
 
-    // fonction qui fait une requête vers le serveur pour faire la deconexion
-    const logout = () => {
-
-        axios.post("user/logout", {}, {withCredentials: true})
-        .then(response => {
-            lougoutFunction();
-        }).catch(error => {
-            setErrorMsg(error.response.data.message);
+    // deconnexion : une fois l'utilisateur effacé, RequireAuth redirige vers /login
+    const handleLogout = () => {
+        logout().catch(error => {
+            setErrorMsg(getErrorMessage(error));
         });
-
     };
 
     return (<>
-        <button title='Se déconnecter' onClick={() => logout()} ><img className='icon' src={logoutIcon} /><span className="visually-hidden">Logout</span></button>
-        {({errorMsg} && <p>{errorMsg}</p>)}
+        <button title='Se déconnecter' onClick={handleLogout} ><img className='icon' src={logoutIcon} /><span className="visually-hidden">Logout</span></button>
+        {errorMsg && <p>{errorMsg}</p>}
     </>)
 
 }

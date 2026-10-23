@@ -1,11 +1,10 @@
 import { useRef } from "react";
-import { FiCamera } from "react-icons/fi";  // install react-icons if you haven’t
-import { useUser } from "../context/userContext";
+import { FiCamera } from "react-icons/fi";
+import defaultAvatar from "../assets/defaultAvatar.jpg";
 
 
 export default function AvatarUploader({ avatarUrl, onFileSelect }) {
   const fileInputRef = useRef(null);
-  const { user } = useUser();
 
   const handleClick = () => {
     fileInputRef.current.click();
@@ -18,13 +17,13 @@ export default function AvatarUploader({ avatarUrl, onFileSelect }) {
 
   return (
     <div className="avatar-uploader" onClick={handleClick}>
-      <img src={avatarUrl} 
-            alt=".........Photo de .......profil....." 
-            className="avatar-img" 
+      <img src={avatarUrl}
+            alt="Photo de profil"
+            className="avatar-img"
             onError={e => {
             e.target.onerror = null;         // prevent infinite loop
-            e.target.src = user.avatarUrl;    // your default src
-          }}  
+            e.target.src = defaultAvatar;    // default src
+          }}
       />
       <div className="avatar-overlay">
         <FiCamera size={20} />

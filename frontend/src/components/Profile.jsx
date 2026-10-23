@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import "../css/Profile.css"; 
+import { useParams } from "react-router-dom";
+import api, { getErrorMessage } from "../api/client.js";
+import "../css/Profile.css";
 import { useUser } from "../context/userContext";
 import MsgList from "./MsgList";
+import defaultAvatar from "../assets/defaultAvatar.jpg";
 import editIcon from "../assets/edit_icon.png";
 import EditProfile from "./EditProfile.jsx";
 
-function Profile({userId, setDisplayProfile, setUserProfile}) {
+function Profile() {
+
+  // l'id du profil affiché vient de l'URL : /profile/:userId
+  const { userId } = useParams();
 
   // states contenant les information du profile 
   const [profileLastName, setProfileLastName] = useState();
@@ -14,20 +19,21 @@ function Profile({userId, setDisplayProfile, setUserProfile}) {
   const [editProfile, setEditProfile] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState();
 
+  // modifié pour actualiser la liste des messages (après suppression)
+  const [updateList, setUpdateList] = useState(0);
+
 
   // state qui contient les potentiel message d'erreur
   const [errorMsg, setErrorMsg] = useState();
 
-  //user contient les infos personnelles d'un user remplit par Login.jsx.
+  //user contient les infos personnelles de l utilisateur connecté (userContext)
   const {user} = useUser();
-
-  const defaultAvatar = "/src/assets/defaultAvatar.jpg";
 
   const API_URL = import.meta.env.VITE_API_URL;
 
   const getUserProfile = () => {
     // requete vers le serveur
-    axios.get('/user/profile/'+userId, {withCredentials:true})
+    api.get('/user/profile/'+userId)
     .then(res => {
       if (res.status == 200){
         if (res.data){  
@@ -39,14 +45,15 @@ function Profile({userId, setDisplayProfile, setUserProfile}) {
     })
     .catch(error => {
       // récupération du message d'érreur
-      setErrorMsg(error.response.data.message);
+      setErrorMsg(getErrorMessage(error));
     });
   }
   
   
   useEffect(() => {
+    setEditProfile(false);
     getUserProfile();
-  }, [userId]);
+  }, [userId, user.firstName, user.lastName, user.avatarUrl]);  // recharge aussi après modification de mon profil
 
   // booléen definissant si le profile affiché est celui de l'utilisateur connecté
   let isMyProfile = (user.userId === userId);
@@ -71,8 +78,7 @@ function Profile({userId, setDisplayProfile, setUserProfile}) {
                   onError={e => {
                     e.target.onerror = null;         // prevent infinite loop
                     e.target.src = defaultAvatar;    // your default src
-                    user.avatarUrl = defaultAvatar;
-                  }}    
+                  }}
               />
             
                 <h2>{profileFirstName} {profileLastName}</h2>
@@ -89,11 +95,7 @@ function Profile({userId, setDisplayProfile, setUserProfile}) {
         }
         
         <h3>{isMyProfile?"Mes" : "Ses"} messages</h3>
-        <MsgList 
-          authorId={userId}
-          setDisplayProfile={setDisplayProfile}
-          setUserProfile={setUserProfile}
-        />
+        <MsgList authorId={userId} setUpdateList={setUpdateList} updateList={updateList} />
         </>)
       }
       

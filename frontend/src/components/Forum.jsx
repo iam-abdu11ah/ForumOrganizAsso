@@ -1,29 +1,31 @@
 import {useState} from 'react';
+import { useSearchParams } from 'react-router-dom';
 import FormMsg from "./FormMsg";
 import MsgList from "./MsgList";
 
-function Forum({isPrivate, setDisplayProfile, setUserProfile, msgSearchContent, dateBegin, dateEnd}){
+function Forum({isPrivate}){
+
+    // filtres de recherche lus depuis l'URL (remplis par SearchMsg)
+    const [searchParams] = useSearchParams();
 
     // state modifier pour actualiser la liste
     const [updateList, setUpdateList] = useState(0);
 
     return (
     <div className='Forum'>
-        <FormMsg 
-            isComment={false} 
-            msgAnswered={-1} 
+        <FormMsg
+            isComment={false}
+            msgAnswered={-1}
             isPrivate={isPrivate}
-            setUpdateList={(val) => setUpdateList(val)}
+            setUpdateList={setUpdateList}
             updateList={updateList}
         />
         <MsgList
             isPrivate={isPrivate}
-            msgSearchContent={msgSearchContent}
-            dateBegin={dateBegin}
-            dateEnd={dateEnd}
-            setDisplayProfile={(bool) => {setDisplayProfile(bool)}}
-            setUserProfile={(userId) => {setUserProfile(userId)}}
-            setUpdateList={(val) => setUpdateList(val)}
+            msgSearchContent={searchParams.get("q")}
+            dateBegin={searchParams.get("from")}
+            dateEnd={searchParams.get("to")}
+            setUpdateList={setUpdateList}
             updateList={updateList}
         />
     </div>);

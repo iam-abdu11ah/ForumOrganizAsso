@@ -154,3 +154,18 @@
     font-size: 12px;
   }
 }
+
+/* lien Login / Signup affiché comme un bouton */
+.switchButton {
+  display: inline-block;
+  background-color: #0055ff;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.switchButton:hover {
+  background-color: #1e40af;
+}

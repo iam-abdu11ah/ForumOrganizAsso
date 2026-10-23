@@ -1,6 +1,6 @@
 import "../css/FormMsg.css";
 import {useState} from 'react';
-import axios from 'axios';
+import api, { getErrorMessage } from '../api/client.js';
 
 function FormMsg({isComment, msgAnswered, isPrivate, setUpdateList, updateList}){
 
@@ -21,12 +21,12 @@ function FormMsg({isComment, msgAnswered, isPrivate, setUpdateList, updateList})
         }
 
         // requete vers le serveur
-        axios.post("/message/newMessage", {content, isComment, msgAnswered, isPrivate}, {withCredentials:true})
+        api.post("/message/newMessage", {content, isComment, msgAnswered, isPrivate})
         .then(res => {
             setContent("");
             setUpdateList(updateList + 1);
         }).catch(error => {
-            setErrorMsg(error.response.data.message);
+            setErrorMsg(getErrorMessage(error));
         })
     }
 
