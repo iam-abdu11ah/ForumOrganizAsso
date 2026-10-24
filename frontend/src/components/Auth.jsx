@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import api, { getErrorMessage } from '../api/client.js';
 import { useUser } from "../context/userContext.jsx";
+import ServerWaking from "./ServerWaking.jsx";
 import "../css/LoginSignup.css";
 
 
@@ -15,6 +16,8 @@ export default function Auth({ mode }){ // "login" or "signup"
     const [confirmPassword, setConfirmPassword] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
+    // true pendant la requête vers le serveur (peut durer ~50 s si le serveur se réveille)
+    const [submitting, setSubmitting] = useState(false);
     const { login: saveUser } = useUser();
 
     const validate = () => {
@@ -45,6 +48,8 @@ export default function Auth({ mode }){ // "login" or "signup"
             {login, password} : {firstName, lastName, login, password};
 
         const endpoint = (mode === "login") ? "/user/login" : "/user/newUser";
+        setErrorMsg("");
+        setSubmitting(true);
         api.post(endpoint, body)
         .then(res => {
             if (res.status == 200 && mode === "login"){
@@ -65,7 +70,7 @@ export default function Auth({ mode }){ // "login" or "signup"
         }).catch (error => {
             setErrorMsg(getErrorMessage(error));
             setSuccessMsg("");
-        });
+        }).finally(() => setSubmitting(false));
     }
 
     return (
@@ -140,8 +145,10 @@ export default function Auth({ mode }){ // "login" or "signup"
                 </>
                 )}
                 
-                <input type="submit" value={mode === "login" ? "Login" : "Signup"} className="submitButton"/>
+                {/* désactivé pendant la requête pour éviter les doubles envois */}
+                <input type="submit" value={mode === "login" ? "Login" : "Signup"} className="submitButton" disabled={submitting}/>
             </form>
+            {submitting && <ServerWaking compact />}
             {errorMsg == "" ? <><br/></> : <p className='errorMsg'>{errorMsg}</p>}
             {successMsg == "" ? <><br/></> : <p className='successMsg'>{successMsg}</p>}
             

@@ -43,6 +43,28 @@ app.use(cors({
 
 app.use(express.json());
 
+// verifie que le serveur et la base de donnée répondent
+// appelé chaque semaine par cron-job.org : la requête vers MongoDB empêche Atlas de mettre le cluster en pause
+const { client } = require("./db.js");
+
+app.get("/health", async (req, res) => {
+    try {
+        await client.db("main").command({ ping: 1 });
+        res.status(200).json({
+            status: 200,
+            message: "OK",
+            database: "connected"
+        });
+    } catch (e) {
+        res.status(500).json({
+            status: 500,
+            message: "Erreur : la base de donnée ne répond pas",
+            details: (e || "Erreur inconnue").toString()
+        });
+        console.error(e);
+    }
+});
+
 // Router
 const userRoute = require("./routes/userRoute.js");
 const messageRoute = require("./routes/messageRoute.js");

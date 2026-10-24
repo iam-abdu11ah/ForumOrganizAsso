@@ -169,3 +169,9 @@
 .switchButton:hover {
   background-color: #1e40af;
 }
+
+/* bouton désactivé pendant l'envoi de la requête */
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
