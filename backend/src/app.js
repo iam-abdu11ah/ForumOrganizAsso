@@ -5,13 +5,21 @@ const path = require('path');
 
 const app = express();
 
-// middlewre 
+// en production le frontend (vercel.app) et le backend (onrender.com) sont sur deux sites différents :
+// le cookie de session doit être SameSite=None + Secure, sinon le navigateur ne l'envoie pas
+const isProduction = process.env.NODE_ENV === "production";
+
+// Render passe par un proxy HTTPS : nécessaire pour qu'express-session accepte d'envoyer un cookie Secure
+app.set("trust proxy", 1);
+
+// middlewre
 app.use(session({
-    secret: "technoweb rocks",
+    secret: process.env.SESSION_SECRET || "technoweb rocks",
     resave: true,
     saveUninitialized: false,
     cookie: {
-        secure: false,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24
     }
