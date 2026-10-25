@@ -115,4 +115,13 @@
   .Message .hideMsgButtonText {
     display: none;
   }
+  .Message {
+    padding: 10px;
+  }
+
+  .Message button {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+  
 }

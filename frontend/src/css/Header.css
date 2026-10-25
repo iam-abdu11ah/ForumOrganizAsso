@@ -109,7 +109,7 @@ button {
 }
 
 .logo {
-  width: 150px;
+  height: 47px;
 }
 
 .icon {
@@ -176,6 +176,23 @@ button {
 
   .header .toggleSearch {
     display: inline-flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* pendant la recherche : les icônes de navigation sont cachées, la recherche prend toute la ligne */
+  .header.searching .toolbarZone {
+    display: none;
+  }
+
+  .toggleSearch .searchZone,
+  .toggleSearch .searchBar {
+    flex: 1;
+  }
+
+  .toggleSearch .searchInput {
+    width: 100%;
   }
 
   .header .logoZone {
@@ -186,29 +203,18 @@ button {
     display: flex;
   }
 
-}
-
-@media (max-width : 600px) {
-  .header .toolbarZone {
+    .header .toolbarZone {
     gap: 5px;
   }
 }
 
-@media (max-width : 553px) {
-  .header {
-    height: unset;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .contentZone {
-    margin-top: 120px;
-  }
-}
-
-@media (max-width: 500px) {
+@media (max-width : 550px) {
+  /* show cropped logo : on garde seulement la partie gauche (le symbole), sans le texte
+     le logo affiché fait 100px x 32px ; la boîte ne fait que la moitié de la largeur */
   .header .logo {
-    margin-left: -25px;
+    width: 62px;               /* largeur visible : 50% des 100px */
+    object-fit: cover;         /* l'image garde ses proportions et déborde de la boîte */
+    object-position: left center; /* on garde le côté gauche, le reste est coupé */
   }
+
 }

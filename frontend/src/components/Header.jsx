@@ -2,7 +2,7 @@ import SearchMsg from "./SearchMsg";
 import LogoutButton from "./LogoutButton";
 import {useUser} from "../context/userContext";
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import "../css/Header.css";
 import "../css/SearchMsg.css";
 import logoOrganizasso from "../assets/logoOrganizasso.png";
@@ -22,8 +22,17 @@ function Header(){
     // affiche la barre de recherche sur petit écran
     const [toggleSearch, setToggleSearch] = useState(false);
 
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // ferme la recherche et enlève les filtres de l'URL (on reste sur la même page) : tous les messages réapparaissent
+    const closeSearch = () => {
+        setToggleSearch(false);
+        navigate(location.pathname);
+    };
+
     return (
-    <div className="header">
+    <div className={"header" + (toggleSearch ? " searching" : "")}>
 
         <div className="logoZone">
             <img className="logo" src={logoOrganizasso} alt="logo" />
@@ -38,8 +47,12 @@ function Header(){
                 <img className="logo" src={logoOrganizasso} alt="logo" />
             </div>
         }
+        {/* petit écran : la recherche remplace toute la ligne du header, ✕ pour la fermer */}
         <div className="toggleSearch">
-            {toggleSearch && <SearchMsg />}
+            {toggleSearch && <>
+                <button className="closeSearchButton" title="Fermer la recherche" onClick={closeSearch}>✕</button>
+                <SearchMsg />
+            </>}
         </div>
 
         <div className="toolbarZone">
