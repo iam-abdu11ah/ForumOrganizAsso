@@ -50,7 +50,7 @@ function Header(){
         {/* petit écran : la recherche remplace toute la ligne du header, ✕ pour la fermer */}
         <div className="toggleSearch">
             {toggleSearch && <>
-                <button className="closeSearchButton" title="Fermer la recherche" onClick={closeSearch}>✕</button>
+                <button className="closeSearchButton" title="Fermer la recherche" onClick={closeSearch}>X</button>
                 <SearchMsg />
             </>}
         </div>
